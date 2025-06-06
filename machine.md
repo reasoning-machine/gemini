@@ -1,6 +1,6 @@
 ---
 layout: page
-title: Thingking
+title: Reasoning
 ---
 {% include utilities.html %}
 <p class="dialogue"><span class="speaker">Theodotos</span>What is justice, my friend?</p>

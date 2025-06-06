@@ -1,1 +1,1 @@
-### Thingking Machine (Gemini)
+### Reasoning Machine (Gemini)
