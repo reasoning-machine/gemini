@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (['maxOutputTokens', 'thinkingBudget'].includes(key)) {
             const numValue = parseInt(value, 10);
             llmSettings[key] = isNaN(numValue) ? value : numValue;
-        } else if (key === 'include_thoughts') {
+        } else if (key === 'includeThoughts') {
             const boolValue = value === 'true';
                 llmSettings[key] = boolValue;
         } else {
