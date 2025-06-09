@@ -15,12 +15,15 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (key === 'thinkingBudget') {
             const numValue = parseInt(value, 10);
             llmSettings[key] = isNaN(numValue) ? value : numValue;
+        } else if (key === 'include_thoughts') {
+            const boolValue = value === 'true';
+                llmSettings[key] = boolValue;
         } else if (key === 'topP') {
           const numValue = parseFloat(value);
           llmSettings[key] = isNaN(numValue) ? value : numValue;
         } else if (key === 'topK') {
-          const numValue = parseInt(value, 10);
-          llmSettings[key] = isNaN(numValue) ? value : numValue;
+            const numValue = parseInt(value, 10);
+            llmSettings[key] = isNaN(numValue) ? value : numValue;
         } else {
           llmSettings[key] = value;
         }
