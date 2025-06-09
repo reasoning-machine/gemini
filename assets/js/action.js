@@ -3,27 +3,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const llmSettings = {};
     const queryParams = new URLSearchParams(window.location.search);
 
-    // Iterate over all query parameters found in the URL
+    // Iterate over query parameters found in the URL
     for (const [key, value] of queryParams.entries()) {
         // Basic type conversion for known numeric fields
-        if (key === 'temperature') {
+        if (['temperature', 'topP', 'topK', 'thinkingBudget'].includes(key)) {
           const numValue = parseFloat(value);
           llmSettings[key] = isNaN(numValue) ? value : numValue;
-        } else if (key === 'maxOutputTokens') {
-            const numValue = parseInt(value, 10);
-            llmSettings[key] = isNaN(numValue) ? value : numValue;
-        } else if (key === 'thinkingBudget') {
+        } else if (['maxOutputTokens', 'thinkingBudget'].includes(key)) {
             const numValue = parseInt(value, 10);
             llmSettings[key] = isNaN(numValue) ? value : numValue;
         } else if (key === 'include_thoughts') {
             const boolValue = value === 'true';
                 llmSettings[key] = boolValue;
-        } else if (key === 'topP') {
-          const numValue = parseFloat(value);
-          llmSettings[key] = isNaN(numValue) ? value : numValue;
-        } else if (key === 'topK') {
-            const numValue = parseInt(value, 10);
-            llmSettings[key] = isNaN(numValue) ? value : numValue;
         } else {
           llmSettings[key] = value;
         }
