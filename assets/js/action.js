@@ -293,13 +293,13 @@ document.addEventListener('DOMContentLoaded', () => {
                             const responseContent = llmResponseData.content.parts;
 
                             const regularText = responseContent
-                                .filter(part => !part.hasOwnProperty('thoughts'))
+                                .filter(part => !part.hasOwnProperty('thought'))
                                 .map(part => part.text)
                                 .join(' ');
                             console.log('Regular text:', regularText);
 
                             const thoughtsText = responseContent
-                                .filter(part => part.hasOwnProperty('thoughts') && part.thoughts)
+                                .filter(part => part.hasOwnProperty('thought') && part.thoughts)
                                 .map(part => part.text)
                                 .join(' ');
                             console.log('Thoughts text:', thoughtsText);
