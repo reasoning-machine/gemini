@@ -305,8 +305,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             const newCmjMessage = {
                                 role: 'assistant',
                                 name: machineConfig.name,
-                                content: regularText,
-                                thoughts: thoughtsText
+                                content: regularText
                             };
 
                             // cmjMessages (from the outer scope of the Alt+Shift listener) is updated
@@ -321,6 +320,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             }
 
                             localStorage.setItem('multilogue', updatedPlatoText);
+
+                            localStorage.setItem('thoughts', updatedPlatoText);
 
                             // updateDisplayState
                             updateDisplayState();
