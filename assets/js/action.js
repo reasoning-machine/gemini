@@ -296,13 +296,15 @@ document.addEventListener('DOMContentLoaded', () => {
                                 .filter(part => !part.hasOwnProperty('thought'))
                                 .map(part => part.text)
                                 .join(' ');
-                            console.log('Regular text:', regularText);
+                            const desoupedText = llmSoupToText(regularText)
+                            console.log('Regular text:', desoupedText);
 
                             const thoughtsText = responseContent
                                 .filter(part => part.hasOwnProperty('thought') && part.thought)
                                 .map(part => part.text)
                                 .join(' ');
-                            console.log('Thoughts text:', thoughtsText);
+                            const desoupedThoughts = llmSoupToText(thoughtsText)
+                            console.log('Thoughts text:', desoupedThoughts);
 
                             const newCmjMessage = {
                                 role: 'assistant',

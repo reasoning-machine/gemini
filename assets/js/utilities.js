@@ -351,3 +351,106 @@ function platoHtmlToCmj(platoHtml) {
 
   return messages; // JSDoc indicates string, but function returns Array.
 }
+
+/**
+ * Cleans and transforms text from Large Language Models (LLMs) by:
+ * - Removing all Markdown formatting (bold, italics, headers, lists, code blocks, links, etc.).
+ * - Consolidating multiple newlines into a consistent paragraph separator (`\n\t`).
+ * - Removing extraneous tabs and multiple spaces.
+ * - Trimming leading/trailing whitespace.
+ *
+ * @param {string} llmResponse The raw text response from an LLM.
+ * @returns {string} The cleaned and formatted plain text.
+ */
+function llmSoupToText(llmResponse) {
+    if (typeof llmResponse !== 'string') {
+        // Handle non-string inputs gracefully, e.g., by returning an empty string
+        // or throwing an error, depending on desired behavior.
+        console.warn('llmSoupToText received non-string input:', llmResponse);
+        return '';
+    }
+
+    let text = llmResponse;
+
+    // --- Step 1: Normalize Newlines & Initial Cleanup ---
+    // Replace Windows newlines with Unix newlines for consistency
+    text = text.replace(/\r\n/g, '\n');
+    // Consolidate all sequences of two or more newlines into exactly two newlines.
+    // This simplifies paragraph detection before further processing.
+    text = text.replace(/\n{2,}/g, '\n\n');
+
+    // --- Step 2: Remove Block-Level Markdown Elements ---
+    // These are often multi-line and should be handled first to prevent partial removal.
+
+    // Remove fenced code blocks (```language\ncode\n``` or ~~~language\ncode\n~~~)
+    // The content within the code block is removed entirely as per "all markdown should be removed altogether".
+    text = text.replace(/`{3,}[^\n]*\n([\s\S]*?)\n`{3,}/g, '');
+    text = text.replace(/~{3,}[^\n]*\n([\s\S]*?)\n~{3,}/g, '');
+
+    // Remove HTML comments (<!-- comment -->)
+    text = text.replace(/<!--[\s\S]*?-->/g, '');
+
+    // Remove basic HTML tags (e.g., <br>, <div>, <p>).
+    // This regex is simple and might not handle all complex HTML, but covers common LLM output.
+    text = text.replace(/<[^>]+>/g, '');
+
+    // Remove horizontal rules (---, ***, ___ on a line by themselves)
+    text = text.replace(/^\s*(?:-|\*|_){3,}\s*$/gm, '');
+
+    // Remove blockquotes (just the '>' prefix). The content remains.
+    text = text.replace(/^\s*>\s*/gm, '');
+
+    // --- Step 3: Remove Inline Markdown Elements ---
+
+    // Remove headers (ATX style: # Header, ## Header, etc.)
+    text = text.replace(/^\s*#{1,6}\s*/gm, '');
+    // Remove Setext headers (underlined headers: Header\n--- or Header\n===).
+    // We keep the actual header text and remove the underline.
+    text = text.replace(/^([^\n]+)\n\s*(?:=|-){2,}\s*$/gm, '$1');
+
+    // Remove links and images (![alt](url), [text](url)). The entire markdown syntax is removed.
+    text = text.replace(/!?\[.*?\]\(.*?\)/g, '');
+
+    // Remove inline code (`code`). The content within the backticks remains, backticks are removed.
+    // This aligns with "removing markdown" but preserving "meaningful" content.
+    text = text.replace(/`([^`]+)`/g, '$1');
+
+    // Remove bold formatting (**bold**, __bold__). Content remains.
+    // Non-greedy `+?` ensures it matches the smallest possible string between delimiters.
+    text = text.replace(/\*\*([^*]+?)\*\*/g, '$1');
+    text = text.replace(/__([^_]+?)__/g, '$1');
+
+    // Remove italic formatting (*italic*, _italic_). Content remains.
+    // Careful with single underscores, ensures there's content inside to avoid matching `my_file.txt`.
+    text = text.replace(/\*([^*]+?)\*/g, '$1');
+    text = text.replace(/_([^_]+?)_/g, '$1');
+
+    // Remove list markers (-, *, +, 1., 2.). The list item content remains.
+    text = text.replace(/^\s*(?:[-*+]|\d+\.)\s+/gm, '');
+
+    // --- Step 4: Final Whitespace & Paragraph Normalization ---
+
+    // Remove leading/trailing whitespace from each line.
+    // This helps clean up after removing various markdown elements.
+    text = text.split('\n').map(line => line.trim()).join('\n');
+
+    // Replace any remaining tabs with single spaces.
+    text = text.replace(/\t/g, ' ');
+    // Consolidate multiple spaces into single spaces.
+    text = text.replace(/ {2,}/g, ' ');
+
+    // The core paragraph transformation: replace double newlines with newline + tab.
+    // This assumes `\n\n` consistently marks a paragraph break after the previous steps.
+    text = text.replace(/\n\n/g, '\n\t');
+
+    // --- Step 5: Final Trimming ---
+    // Trim leading/trailing whitespace from the entire string.
+    text = text.trim();
+
+    // Remove any leading newlines or tabs that might result from aggressive trimming or transformations.
+    text = text.replace(/^[\n\t]+/, '');
+    // Ensure no multiple tabs appear at the start of paragraphs if there were many newlines initially.
+    text = text.replace(/\n\t{2,}/g, '\n\t');
+
+    return text;
+}
