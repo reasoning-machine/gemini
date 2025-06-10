@@ -84,7 +84,7 @@ self.onmessage = async function(event) {
                 topK:               llmSettings.topK || 50,
                 enableEnhancedCivicAnswers: false,
                 thinkingConfig:   {
-                    thinkingBudget:   llmSettings.thinkingBudget || 24700,
+                    thinkingBudget:   llmSettings.thinkingBudget || 24576,
                     includeThoughts:  llmSettings.includeThoughts || true
                 }
             }
