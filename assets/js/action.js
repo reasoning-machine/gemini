@@ -299,7 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             console.log('Regular text:', regularText);
 
                             const thoughtsText = responseContent
-                                .filter(part => part.hasOwnProperty('thought') && part.thoughts)
+                                .filter(part => part.hasOwnProperty('thought') && part.thought)
                                 .map(part => part.text)
                                 .join(' ');
                             console.log('Thoughts text:', thoughtsText);
