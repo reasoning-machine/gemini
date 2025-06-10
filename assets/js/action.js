@@ -289,11 +289,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
                             // Remove Meta's stop_reason from the message
                             console.log('Initial llmResponseData:', llmResponseData)
+                            // Separate text of thoughts from text of answer
+                            const responseContent = llmResponseData.content.parts;
+
+                            const regularText = responseContent
+                                .filter(part => !part.hasOwnProperty('thoughts'))
+                                .map(part => part.text)
+                                .join(' ');
+
+                            const thoughtsText = responseContent
+                                .filter(part => part.hasOwnProperty('thoughts') && part.thoughts)
+                                .map(part => part.text)
+                                .join(' ');
 
                             const newCmjMessage = {
                                 role: 'assistant',
                                 name: machineConfig.name,
-                                content: llmResponseData.content.parts[0].text
+                                content: regularText,
+                                thoughts: thoughtsText
                             };
 
                             // cmjMessages (from the outer scope of the Alt+Shift listener) is updated
