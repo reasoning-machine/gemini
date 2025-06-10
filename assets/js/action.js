@@ -296,11 +296,13 @@ document.addEventListener('DOMContentLoaded', () => {
                                 .filter(part => !part.hasOwnProperty('thoughts'))
                                 .map(part => part.text)
                                 .join(' ');
+                            console.log('Regular text:', regularText')
 
                             const thoughtsText = responseContent
                                 .filter(part => part.hasOwnProperty('thoughts') && part.thoughts)
                                 .map(part => part.text)
                                 .join(' ');
+                            console.log('Thoughts text:', thoughtsText)
 
                             const newCmjMessage = {
                                 role: 'assistant',
