@@ -20,22 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Function to handle the redirect
-    function redirectToMachine() {
-        console.log('Thoughts page: Redirecting to machine.html');
-        // Using replace() is often preferred for redirects as it prevents
-        // the user from using the back button to return to the thoughts page.
-        window.location.replace('machine.html');
-        // If you want the user to be able to use the back button, use:
-        // window.location.href = 'machine.html';
-    }
-
     // 1. Initial display when the page loads
     displayThoughts();
-
-    // Add a small delay before redirecting, so the user can potentially see the content briefly
-    // Adjust the delay (in milliseconds) as needed. 1000ms = 1 second.
-    setTimeout(redirectToMachine, 1000); // Redirect 1 second after load
 
     // 2. Listen for storage changes from other tabs/windows
     // This is the standard event for cross-tab localStorage communication
@@ -43,16 +29,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (event.key === 'thoughts') {
             console.log('Thoughts page: "thoughts" key changed in localStorage by another tab.');
             displayThoughts();
-            // Redirect again after the content is updated by another tab
-            setTimeout(redirectToMachine, 1000); // Redirect 1 second after update
         }
     });
 
     // 3. Update when tab becomes visible
     // This ensures content is up-to-date if changes occurred while the tab was hidden,
     // or if the 'storage' event was missed.
-    // We will NOT add a redirect here, as redirecting every time the user focuses the tab
-    // would be very disruptive.
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') {
             console.log('Thoughts page: Tab became visible, refreshing thoughts display.');
