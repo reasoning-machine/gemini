@@ -2,4 +2,6 @@
 layout: page
 title: Reasoning
 ---
-### Thoughts
+
+{% include utilities.html %}
+{% include thoughts-display.html %}
