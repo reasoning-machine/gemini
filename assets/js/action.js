@@ -375,6 +375,10 @@ document.addEventListener('DOMContentLoaded', () => {
                             updateDisplayState();
                             console.log('Dialogue updated with LLM response.');
 
+                            window.focus();
+                            console.log('Attempted to focus back on the machine page.');
+
+
                         } catch (processingError) {
                             console.error('Error processing LLM response:', processingError);
                             alert('An error occurred while processing the LLM response: ' + processingError.message);
