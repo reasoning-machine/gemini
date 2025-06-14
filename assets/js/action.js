@@ -206,7 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			try {
 				// Always prompt "Save As"
 				const fileHandle = await window.showSaveFilePicker({
-					suggestedName: 'dialogue.txt', // You can customize the suggested name
+					suggestedName: 'multilogue.txt', // You can customize the suggested name
 					types: [{
 						description: 'Text Files',
 						accept: {
