@@ -239,21 +239,199 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		}
 	});
-	
+
 	// 11. Event listener for LLM communications (Alt+Shift)
 	document.addEventListener('keydown', function (event) {
 		if (event.altKey && event.shiftKey) {
 			event.preventDefault();
-			console.log('Alt+Shift pressed. Triggering LLM interaction.');
-			runMachine()}
+
+			const currentDialogueWrapper = document.getElementById('dialogue-content-wrapper');
+			if (!currentDialogueWrapper) {
+				console.error('Alt+Shift: dialogue-content-wrapper not found.');
+				alert('Error: Could not find the dialogue content to send.');
+				return;
+			}
+
+			const htmlContent = currentDialogueWrapper.innerHTML;
+			if (!htmlContent || htmlContent.trim() === '') {
+				console.log('Alt+Shift: Dialogue content is empty. Nothing to send.');
+				alert('Dialogue is empty. Please add some content first.');
+				return;
+			}
+
+			console.log('Alt+Shift pressed. Preparing to send dialogue to LLM worker...');
+
+			try {
+				const cmjMessages = platoHtmlToCmj(htmlContent); // Ensure platoHtmlToCmj is global
+				const mpujMessages = platoHtmlToMpuj(htmlContent); // platoHtmlToCmj is global
+
+				const userQueryParameters = {
+					config: window.machineConfig,
+					settings: window.llmSettings,
+					messages: mpujMessages
+				};
+
+				console.log('Alt+Shift: Launching LLM worker with MPUJ messages:', userQueryParameters);
+				const llmWorker = new Worker(machineConfig.work);
+
+				llmWorker.onmessage = function (e) {
+					console.log('Main thread: Message received from worker:', e.data);
+					if (e.data.type === 'success') {
+						console.log('Worker task successful. LLM Response:', e.data.data);
+
+						try {
+							const llmResponseData = e.data.data;
+							if (!llmResponseData || !llmResponseData.content) {
+								console.error('LLM response is missing a message content.');
+								alert('Received an empty or invalid response from the LLM.');
+								return;
+							}
+
+							// Remove Meta's stop_reason from the message
+							console.log('Initial llmResponseData:', llmResponseData)
+							// Separate text of thoughts from text of answer
+							const responseContent = llmResponseData.content.parts;
+
+							const regularText = responseContent
+								.filter(part => !part.hasOwnProperty('thought'))
+								.map(part => part.text)
+								.join(' ');
+							const desoupedText = llmSoupToText(regularText)
+							console.log('Regular text:', desoupedText);
+
+							const thoughtsText = responseContent
+								.filter(part => part.hasOwnProperty('thought') && part.thought)
+								.map(part => part.text)
+								.join(' ');
+							const desoupedThoughts = llmSoupToText(thoughtsText)
+							console.log('Thoughts text:', desoupedThoughts);
+
+							const newCmjMessage = {
+								role: 'assistant',
+								name: machineConfig.name,
+								content: desoupedText
+							};
+
+							cmjMessages.push(newCmjMessage);
+
+							const updatedPlatoText = CmjToPlatoText(cmjMessages);
+
+							if (typeof updatedPlatoText !== 'string') {
+								console.error('Failed to convert updated CMJ to PlatoText.');
+								alert('Error processing the LLM response for display.');
+								return;
+							}
+
+							localStorage.setItem('multilogue', updatedPlatoText);
+
+							localStorage.setItem('thoughts', desoupedThoughts);
+
+							console.log('Worker task successful. LLM Response processed. Thoughts stored.');
+
+							// --- Open or ensure the thoughts tab is open/updated ---
+							const thoughtsPageUrl = 'thoughts.html'; // Assuming thoughts.html is in the same directory level
+							let thoughtsTab = window.open('', 'geminiThoughtsTab'); // Use a consistent name to reference the tab
+
+							if (!thoughtsTab || thoughtsTab.closed) {
+								console.log('Thoughts tab not found or closed, opening new one.');
+								thoughtsTab = window.open(thoughtsPageUrl, 'geminiThoughtsTab');
+								// If a new tab is opened, browser focus will likely shift to it.
+							} else {
+								// Tab exists, check if it's on the correct page or needs navigation
+								let currentPath = '';
+								let needsNavigation = false;
+								try {
+									currentPath = thoughtsTab.location.pathname;
+									// Check if the current path correctly points to thoughts.html
+									// This handles cases like the tab being open but on 'about:blank'
+									if (thoughtsTab.location.href === 'about:blank' || !currentPath.endsWith(thoughtsPageUrl)) {
+										needsNavigation = true;
+									}
+								} catch (e) {
+									// Cross-origin error likely means it's on 'about:blank' or a different domain if something went wrong.
+									console.warn('Could not access thoughtsTab.location.pathname, will attempt to navigate.');
+									needsNavigation = true; // Assume navigation is needed
+								}
+
+								if (needsNavigation) {
+									console.log(`Thoughts tab needs navigation. Current href: ${thoughtsTab.location.href}. Attempting to set to ${thoughtsPageUrl}`);
+									try {
+										thoughtsTab.location.href = thoughtsPageUrl;
+									} catch (navError) {
+										console.error('Failed to navigate existing thoughts tab, trying to reopen:', navError);
+										// Fallback: try to open a new one, which might be blocked or create a new instance
+										thoughtsTab = window.open(thoughtsPageUrl, 'geminiThoughtsTab');
+									}
+								} else {
+									console.log('Thoughts tab already open and on the correct page. localStorage change will trigger its update.');
+								}
+							}
+
+							updateDisplayState();
+							console.log('Dialogue updated with LLM response.');
+
+							window.focus();
+							console.log('Attempted to focus back on the machine page.');
+
+
+						} catch (processingError) {
+							console.error('Error processing LLM response:', processingError);
+							alert('An error occurred while processing the LLM response: ' + processingError.message);
+						}
+
+					} else if (e.data.type === 'error') {
+						console.error('Main thread: Error message from worker:', e.data.error);
+						alert('Worker reported an error: ' + e.data.error);
+					}
+				};
+
+				llmWorker.onerror = function (error) {
+					console.error('Main thread: An error occurred with the worker script:', error.message, error);
+					alert('Failed to initialize or run worker: ' + error.message);
+				};
+
+				llmWorker.postMessage(userQueryParameters);
+				console.log('Main thread: Worker launched and CMJ messages sent.');
+
+			} catch (e) {
+				console.error('Alt+Shift: Failed to process dialogue or communicate with the worker:', e);
+				alert('Error preparing data for LLM: ' + e.message);
+			}
+		}
 	});
-	
-	// 12 Event listener for remote trigger from Chrome extension
-	window.addEventListener('runMachineCommand', function() {
-	  console.log('Received runMachineCommand event. Triggering LLM interaction.');
-	  runMachine();
-	});
-	
+
+	// 13. Listen for storage changes to multilogue (e.g., from extension)
+	// window.addEventListener('storage', function(event) {
+	//     if (event.key === 'multilogue') {
+	//         // console.log('Page Script: localStorage.platoText changed, calling updateDisplayState.');
+	//         // Ensure updateDisplayState is accessible here or call the relevant parts directly
+	//         if (typeof updateDisplayState === 'function') {
+	//             updateDisplayState();
+	//         } else {
+	//             console.warn('Page Script: updateDisplayState function not found globally for storage event.');
+	//             // Fallback or direct DOM manipulation if needed, though updateDisplayState is preferred
+	//             const currentPlatoText = localStorage.getItem('multilogue');
+	//             if (currentPlatoText && currentPlatoText.trim() !== '') {
+	//                 try {
+	//                     dialogueWrapper.innerHTML = platoTextToPlatoHtml(currentPlatoText); // Assumes platoTextToPlatoHtml is global
+	//                     dialogueWrapper.style.display = 'block';
+	//                     textarea.style.display = 'none';
+	//                     filePickerContainer.style.display = 'none';
+	//                     dialogueWrapper.scrollIntoView({ behavior: 'smooth', block: 'end' });
+	//                 } catch (e) {
+	//                     console.error("Page Script (storage listener): Error rendering Plato text to HTML:", e);
+	//                     dialogueWrapper.innerHTML = "<p class='dialogue-error'>Error loading content.</p>";
+	//                 }
+	//             } else {
+	//                 dialogueWrapper.style.display = 'none';
+	//                 textarea.style.display = 'none';
+	//                 filePickerContainer.style.display = 'flex';
+	//                 dialogueWrapper.innerHTML = '';
+	//                 textarea.value = '';
+	//             }
+	//         }
+	//     }
+	// });
 	// 14. Update display when tab becomes visible again
 	document.addEventListener('visibilitychange', () => {
 		if (document.visibilityState === 'visible') {
