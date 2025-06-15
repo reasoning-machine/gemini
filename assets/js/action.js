@@ -250,7 +250,6 @@ document.addEventListener('DOMContentLoaded', () => {
 			console.log('Dialogue updated with LLM response.');
 			window.focus();
 			console.log('Attempted to focus back on the machine page.');
-			
 		}
 	});
 	
@@ -258,6 +257,10 @@ document.addEventListener('DOMContentLoaded', () => {
 	window.addEventListener('runMachineCommand', function() {
 	  console.log('Received runMachineCommand event. Triggering LLM interaction.');
 	  runMachine();
+		updateDisplayState();
+		console.log('Dialogue updated with LLM response.');
+		window.focus();
+		console.log('Attempted to focus back on the machine page.');
 	});
 	
 	// 14. Update display when tab becomes visible again
