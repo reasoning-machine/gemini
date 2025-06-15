@@ -111,10 +111,6 @@ function runMachine() {
               console.log('Thoughts tab already open and on the correct page.');
             }
           }
-          updateDisplayState();
-          console.log('Dialogue updated with LLM response.');
-          window.focus();
-          console.log('Attempted to focus back on the machine page.');
           
         } catch (processingError) {
           console.error('Error processing LLM response:', processingError);

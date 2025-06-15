@@ -245,7 +245,13 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (event.altKey && event.shiftKey) {
 			event.preventDefault();
 			console.log('Alt+Shift pressed. Triggering LLM interaction.');
-			runMachine()}
+			runMachine();
+			updateDisplayState();
+			console.log('Dialogue updated with LLM response.');
+			window.focus();
+			console.log('Attempted to focus back on the machine page.');
+			
+		}
 	});
 	
 	// 12 Event listener for remote trigger from Chrome extension
