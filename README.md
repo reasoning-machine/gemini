@@ -1,1 +1,1 @@
-### Reasoning Machine (Gemini)
+### Reasoning Machine (gemini)
