@@ -91,10 +91,9 @@ function runMachine() {
               !passUtterances.includes(updatedPlatoText.trim().toLowerCase())) {
               localStorage.setItem('multilogue', updatedPlatoText);
             }
-            // if (desoupedThoughts && desoupedThoughts.trim() !== '') {
-            //   localStorage.setItem('thoughts', desoupedThoughts);
-            //   // ... (thoughts handling logic)
-            // }
+            if (desoupedThoughts && desoupedThoughts.trim() !== '') {
+              localStorage.setItem('thoughts', desoupedThoughts);
+            }
             resolve(); // Resolve the promise on success
           } catch (processingError) {
             console.error('Error processing LLM response:', processingError);
