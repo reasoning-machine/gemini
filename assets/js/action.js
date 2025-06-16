@@ -245,23 +245,35 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (event.altKey && event.shiftKey) {
 			event.preventDefault();
 			console.log('Alt+Shift pressed. Triggering LLM interaction.');
-			runMachine();
-			console.log('returned from the machine run.')
-			updateDisplayState();
-			console.log('Dialogue updated with LLM response.');
-			window.focus();
-			console.log('Attempted to focus back on the machine page.');
+			runMachine()
+				.then(() => {
+					console.log('LLM interaction complete (Alt+Shift). Updating display.');
+					updateDisplayState();
+					console.log('Dialogue updated with LLM response.');
+					window.focus(); // Keep focus attempt if desired
+					// console.log('Attempted to focus back on the machine page.');
+				})
+				.catch(error => {
+					console.error('LLM interaction failed (Alt+Shift):', error.message);
+					// Optionally, you might still want to updateDisplayState() or show an error in the UI
+				});
 		}
 	});
 	
 	// 12 Event listener for remote trigger from Chrome extension
 	window.addEventListener('runMachineCommand', function() {
-	  console.log('Received runMachineCommand event. Triggering LLM interaction.');
-	  runMachine();
-		console.log('returned from the machine run.')
-		updateDisplayState();
-		console.log('Dialogue updated with LLM response.');
-		console.log('Attempted to focus back on the machine page.');
+		console.log('Received runMachineCommand event. Triggering LLM interaction.');
+		runMachine()
+			.then(() => {
+				console.log('LLM interaction complete (runMachineCommand). Updating display.');
+				updateDisplayState();
+				console.log('Dialogue updated with LLM response.');
+				// console.log('Attempted to focus back on the machine page.');
+			})
+			.catch(error => {
+				console.error('LLM interaction failed (runMachineCommand):', error.message);
+				// Optionally, handle error display
+			});
 	});
 	
 	// 13. Update machine from the synced localStorage
