@@ -257,9 +257,9 @@ document.addEventListener('DOMContentLoaded', () => {
 	window.addEventListener('runMachineCommand', function() {
 	  console.log('Received runMachineCommand event. Triggering LLM interaction.');
 	  runMachine();
+		console.log('returned from the machine run.')
 		updateDisplayState();
 		console.log('Dialogue updated with LLM response.');
-		window.focus();
 		console.log('Attempted to focus back on the machine page.');
 	});
 	
