@@ -141,4 +141,5 @@ function runMachine() {
     console.error('LLM Interaction: Failed to process dialogue or communicate with the worker:', e);
     alert('Error preparing data for LLM: ' + e.message);
   }
+  return;
 }
