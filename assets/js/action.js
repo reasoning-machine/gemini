@@ -239,41 +239,41 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		}
 	});
+
+// /home/alxfed/2025/Webmachines/Reasoning/gemini/assets/js/action.js
+// ... (other code remains the same) ...
 	
 	// 11. Event listener for LLM communications (Alt+Shift)
-	document.addEventListener('keydown', function (event) {
+	document.addEventListener('keydown', async function (event) { // <-- Add async here
 		if (event.altKey && event.shiftKey) {
 			event.preventDefault();
 			console.log('Alt+Shift pressed. Triggering LLM interaction.');
-			runMachine()
-				.then(() => {
-					console.log('LLM interaction complete (Alt+Shift). Updating display.');
-					updateDisplayState();
-					console.log('Dialogue updated with LLM response.');
-					window.focus(); // Keep focus attempt if desired
-					// console.log('Attempted to focus back on the machine page.');
-				})
-				.catch(error => {
-					console.error('LLM interaction failed (Alt+Shift):', error.message);
-					// Optionally, you might still want to updateDisplayState() or show an error in the UI
-				});
-		}
-	});
-	
-	// 12 Event listener for remote trigger from Chrome extension
-	window.addEventListener('runMachineCommand', function() {
-		console.log('Received runMachineCommand event. Triggering LLM interaction.');
-		runMachine()
-			.then(() => {
-				console.log('LLM interaction complete (runMachineCommand). Updating display.');
+			try {
+				await runMachine(); // <-- await the Promise
+				console.log('LLM interaction complete (Alt+Shift). Updating display.');
 				updateDisplayState();
 				console.log('Dialogue updated with LLM response.');
-				// console.log('Attempted to focus back on the machine page.');
-			})
-			.catch(error => {
-				console.error('LLM interaction failed (runMachineCommand):', error.message);
-				// Optionally, handle error display
-			});
+				window.focus(); // Keep focus attempt if desired
+			} catch (error) { // <-- Add error handling
+				console.error('LLM interaction failed (Alt+Shift):', error.message);
+				// Optionally, inform the user via an alert or UI update
+				// alert('LLM interaction failed: ' + error.message);
+			}
+		}
+	});
+
+	// 12 Event listener for remote trigger from Chrome extension
+	window.addEventListener('runMachineCommand', async function() { // Make the function async
+		console.log('Received runMachineCommand event. Triggering LLM interaction.');
+		try {
+			await runMachine(); // Now you can await the Promise
+			console.log('LLM interaction complete (runMachineCommand). Updating display.');
+			updateDisplayState();
+			console.log('Dialogue updated with LLM response.');
+		} catch (error) { // Catch any errors from runMachine
+			console.error('LLM interaction failed (runMachineCommand):', error.message);
+			// Optionally, handle error display
+		}
 	});
 	
 	// 13. Update machine from the synced localStorage
