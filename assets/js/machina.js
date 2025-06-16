@@ -63,11 +63,11 @@ function runMachine() {
               .join(' ');
             const desoupedText = llmSoupToText(regularText);
             
-            // const thoughtsText = responseContent
-            //   .filter(part => part.hasOwnProperty('thought') && part.thought)
-            //   .map(part => part.text)
-            //   .join(' ');
-            // const desoupedThoughts = llmSoupToText(thoughtsText);
+            const thoughtsText = responseContent
+              .filter(part => part.hasOwnProperty('thought') && part.thought)
+              .map(part => part.text)
+              .join(' ');
+            const desoupedThoughts = llmSoupToText(thoughtsText);
             
             const newCmjMessage = {
               role: 'assistant',
