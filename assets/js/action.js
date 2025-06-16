@@ -263,6 +263,13 @@ document.addEventListener('DOMContentLoaded', () => {
 		console.log('Attempted to focus back on the machine page.');
 	});
 	
+	// 13. Update machine from the synced localStorage
+	window.addEventListener('localStorageSynced', function() {
+		console.log('Received localStorageSynced event. Triggering multilogue update.');
+		updateDisplayState();
+		console.log('Dialogue updated with received multilogue.');
+	});
+	
 	// 14. Update display when tab becomes visible again
 	document.addEventListener('visibilitychange', () => {
 		if (document.visibilityState === 'visible') {

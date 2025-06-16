@@ -78,40 +78,47 @@ function runMachine() {
             return;
           }
           
-          localStorage.setItem('multilogue', updatedPlatoText);
-          localStorage.setItem('thoughts', desoupedThoughts);
-          console.log('Worker task successful. LLM Response processed. Thoughts stored.');
-          
-          const thoughtsPageUrl = 'thoughts.html';
-          let thoughtsTab = window.open('', 'geminiThoughtsTab');
-          
-          if (!thoughtsTab || thoughtsTab.closed) {
-            console.log('Thoughts tab not found or closed, opening new one.');
-            thoughtsTab = window.open(thoughtsPageUrl, 'geminiThoughtsTab');
-          } else {
-            let needsNavigation = false;
-            try {
-              if (thoughtsTab.location.href === 'about:blank' || !thoughtsTab.location.pathname.endsWith(thoughtsPageUrl)) {
-                needsNavigation = true;
-              }
-            } catch (ex) {
-              console.warn('Could not access thoughtsTab.location, assuming navigation is needed.');
-              needsNavigation = true;
-            }
-            
-            if (needsNavigation) {
-              console.log(`Thoughts tab needs navigation. Attempting to set to ${thoughtsPageUrl}`);
-              try {
-                thoughtsTab.location.href = thoughtsPageUrl;
-              } catch (navError) {
-                console.error('Failed to navigate existing thoughts tab, trying to reopen:', navError);
+          // List of utterances that Language Model responds with if it passes.
+          const passUtterances = ['...', 'silence', 'pass']
+          // only if the Language Models didn't pass and responded with text
+          if (updatedPlatoText && updatedPlatoText.trim() !== '' &&
+            !passUtterances.includes(updatedPlatoText.trim().toLowerCase()) ) {
+            localStorage.setItem('multilogue', updatedPlatoText);
+            // only if the thoughts are not empty
+            if (desoupedThoughts && desoupedThoughts.trim() !== '') {
+              localStorage.setItem('thoughts', desoupedThoughts);
+              console.log('Worker task successful. LLM Response processed. Thoughts stored.');
+              const thoughtsPageUrl = 'thoughts.html';
+              let thoughtsTab = window.open('', 'geminiThoughtsTab');
+              
+              if (!thoughtsTab || thoughtsTab.closed) {
+                console.log('Thoughts tab not found or closed, opening new one.');
                 thoughtsTab = window.open(thoughtsPageUrl, 'geminiThoughtsTab');
+              } else {
+                let needsNavigation = false;
+                try {
+                  if (thoughtsTab.location.href === 'about:blank' || !thoughtsTab.location.pathname.endsWith(thoughtsPageUrl)) {
+                    needsNavigation = true;
+                  }
+                } catch (ex) {
+                  console.warn('Could not access thoughtsTab.location, assuming navigation is needed.');
+                  needsNavigation = true;
+                }
+                
+                if (needsNavigation) {
+                  console.log(`Thoughts tab needs navigation. Attempting to set to ${thoughtsPageUrl}`);
+                  try {
+                    thoughtsTab.location.href = thoughtsPageUrl;
+                  } catch (navError) {
+                    console.error('Failed to navigate existing thoughts tab, trying to reopen:', navError);
+                    thoughtsTab = window.open(thoughtsPageUrl, 'geminiThoughtsTab');
+                  }
+                } else {
+                  console.log('Thoughts tab already open and on the correct page.');
+                }
               }
-            } else {
-              console.log('Thoughts tab already open and on the correct page.');
             }
           }
-          
         } catch (processingError) {
           console.error('Error processing LLM response:', processingError);
           alert('An error occurred while processing the LLM response: ' + processingError.message);
