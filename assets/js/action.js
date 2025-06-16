@@ -246,6 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			event.preventDefault();
 			console.log('Alt+Shift pressed. Triggering LLM interaction.');
 			runMachine();
+			console.log('returned from the machine run.')
 			updateDisplayState();
 			console.log('Dialogue updated with LLM response.');
 			window.focus();
