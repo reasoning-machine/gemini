@@ -239,26 +239,30 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		}
 	});
-
-// /home/alxfed/2025/Webmachines/Reasoning/gemini/assets/js/action.js
-// ... (other code remains the same) ...
-	
+	// // 11. Event listener for LLM communications (Alt+Shift)
+	// document.addEventListener('keydown', async function (event) { // <-- Add async here
+	// 	if (event.altKey && event.shiftKey) {
+	// 		event.preventDefault();
+	// 		console.log('Alt+Shift pressed. Triggering LLM interaction.');
+	// 		try {
+	// 			await runMachine(); // <-- await the Promise
+	// 			console.log('LLM interaction complete (Alt+Shift). Updating display.');
+	// 			updateDisplayState();
+	// 			console.log('Dialogue updated with LLM response.');
+	// 			window.focus(); // Keep focus attempt if desired
+	// 		} catch (error) { // <-- Add error handling
+	// 			console.error('LLM interaction failed (Alt+Shift):', error.message);
+	// 			// Optionally, inform the user via an alert or UI update
+	// 			// alert('LLM interaction failed: ' + error.message);
+	// 		}
+	// 	}
+	// });
 	// 11. Event listener for LLM communications (Alt+Shift)
 	document.addEventListener('keydown', async function (event) { // <-- Add async here
 		if (event.altKey && event.shiftKey) {
 			event.preventDefault();
 			console.log('Alt+Shift pressed. Triggering LLM interaction.');
-			try {
-				await runMachine(); // <-- await the Promise
-				console.log('LLM interaction complete (Alt+Shift). Updating display.');
-				updateDisplayState();
-				console.log('Dialogue updated with LLM response.');
-				window.focus(); // Keep focus attempt if desired
-			} catch (error) { // <-- Add error handling
-				console.error('LLM interaction failed (Alt+Shift):', error.message);
-				// Optionally, inform the user via an alert or UI update
-				// alert('LLM interaction failed: ' + error.message);
-			}
+			runMachine();
 		}
 	});
 
