@@ -5,7 +5,6 @@ function runMachine() {
     const errorMsg = 'LLM Interaction: dialogue-content-wrapper not found.';
     console.error(errorMsg);
     alert('Error: Could not find the dialogue content to send.');
-    reject(new Error(errorMsg)); // Reject the promise
     return;
   }
   
@@ -14,7 +13,6 @@ function runMachine() {
     const infoMsg = 'LLM Interaction: Dialogue content is empty. Nothing to send.';
     console.log(infoMsg);
     alert('Dialogue is empty. Please add some content first.');
-    reject(new Error(infoMsg)); // Reject the promise
     return;
   }
   
@@ -28,7 +26,6 @@ function runMachine() {
       const errorMsg = "LLM Interaction: machineConfig is not properly set up (missing work or name).";
       console.error(errorMsg);
       alert("Error: LLM configuration is incomplete.");
-      reject(new Error(errorMsg)); // Reject the promise
       return;
     }
     
@@ -51,8 +48,6 @@ function runMachine() {
             const errorMsg = 'LLM response is missing essential content.';
             console.error(errorMsg);
             alert('Received an incomplete or invalid response from the LLM.');
-            reject(new Error(errorMsg)); // Reject on processing error
-            return;
           }
           
           const responseContent = llmResponseData.content.parts;
@@ -81,7 +76,6 @@ function runMachine() {
             const errorMsg = 'Failed to convert updated CMJ to PlatoText.';
             console.error(errorMsg);
             alert('Error processing the LLM response for display.');
-            reject(new Error(errorMsg)); // Reject on processing error
             return;
           }
           
@@ -97,12 +91,10 @@ function runMachine() {
         } catch (processingError) {
           console.error('Error processing LLM response:', processingError);
           alert('An error occurred while processing the LLM response: ' + processingError.message);
-          reject(processingError); // Reject on processing error
         }
       } else if (e.data.type === 'error') {
         console.error('Main thread: Error message from worker:', e.data.error);
         alert('Worker reported an error: ' + e.data.error);
-        reject(new Error(e.data.error)); // Reject on worker error
       }
       llmWorker.terminate(); // Terminate worker after processing
     };
@@ -110,7 +102,6 @@ function runMachine() {
     llmWorker.onerror = function (error) {
       console.error('Main thread: An error occurred with the worker script:', error.message, error);
       alert('Failed to initialize or run worker: ' + error.message);
-      reject(error); // Reject on worker initialization error
       llmWorker.terminate(); // Terminate worker on error
     };
     
@@ -120,6 +111,5 @@ function runMachine() {
   } catch (e) {
     console.error('LLM Interaction: Failed to process dialogue or communicate with the worker:', e);
     alert('Error preparing data for LLM: ' + e.message);
-    reject(e); // Reject on setup error
   }
 }
