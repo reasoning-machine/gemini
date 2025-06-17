@@ -270,13 +270,9 @@ document.addEventListener('DOMContentLoaded', () => {
 	window.addEventListener('runMachineCommand', async function() { // Make the function async
 		console.log('Received runMachineCommand event. Triggering LLM interaction.');
 		try {
-			await runMachine(); // Now you can await the Promise
-			console.log('LLM interaction complete (runMachineCommand). Updating display.');
-			updateDisplayState();
-			console.log('Dialogue updated with LLM response.');
+			runMachine(); // Now you can await the Promise
 		} catch (error) { // Catch any errors from runMachine
 			console.error('LLM interaction failed (runMachineCommand):', error.message);
-			// Optionally, handle error display
 		}
 	});
 	
