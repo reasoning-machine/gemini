@@ -280,9 +280,9 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	});
 	
-	// 13. Update machine from the synced localStorage
-	window.addEventListener('localStorageSynced', function() {
-		console.log('Received localStorageSynced event. Triggering multilogue update.');
+	// 13. Update multilogue display from the localStorage
+	window.addEventListener('localStorageChanged', function() {
+		console.log('Received localStorageChanged event. Triggering multilogue update.');
 		updateDisplayState();
 		console.log('Dialogue updated with received multilogue.');
 	});

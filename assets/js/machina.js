@@ -94,7 +94,6 @@ function runMachine() {
           if (desoupedThoughts && desoupedThoughts.trim() !== '') {
             localStorage.setItem('thoughts', desoupedThoughts);
           }
-          resolve(); // Resolve the promise on success
         } catch (processingError) {
           console.error('Error processing LLM response:', processingError);
           alert('An error occurred while processing the LLM response: ' + processingError.message);
