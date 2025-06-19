@@ -239,30 +239,17 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		}
 	});
-	// // 11. Event listener for LLM communications (Alt+Shift)
-	// document.addEventListener('keydown', async function (event) { // <-- Add async here
-	// 	if (event.altKey && event.shiftKey) {
-	// 		event.preventDefault();
-	// 		console.log('Alt+Shift pressed. Triggering LLM interaction.');
-	// 		try {
-	// 			await runMachine(); // <-- await the Promise
-	// 			console.log('LLM interaction complete (Alt+Shift). Updating display.');
-	// 			updateDisplayState();
-	// 			console.log('Dialogue updated with LLM response.');
-	// 			window.focus(); // Keep focus attempt if desired
-	// 		} catch (error) { // <-- Add error handling
-	// 			console.error('LLM interaction failed (Alt+Shift):', error.message);
-	// 			// Optionally, inform the user via an alert or UI update
-	// 			// alert('LLM interaction failed: ' + error.message);
-	// 		}
-	// 	}
-	// });
+	
 	// 11. Event listener for LLM communications (Alt+Shift)
 	document.addEventListener('keydown', async function (event) { // <-- Add async here
 		if (event.altKey && event.shiftKey) {
 			event.preventDefault();
 			console.log('Alt+Shift pressed. Triggering LLM interaction.');
-			runMachine();
+			try {
+				runMachine();
+			} catch (error) { // Catch any errors from runMachine
+				console.error('LLM interaction failed (runMachine):', error.message);
+			}
 		}
 	});
 
@@ -270,7 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	window.addEventListener('runMachineCommand', async function() { // Make the function async
 		console.log('Received runMachineCommand event. Triggering LLM interaction.');
 		try {
-			runMachine(); // Now you can await the Promise
+			runMachine();
 		} catch (error) { // Catch any errors from runMachine
 			console.error('LLM interaction failed (runMachineCommand):', error.message);
 		}

@@ -1,4 +1,3 @@
-// /home/alxfed/2025/Webmachines/Reasoning/gemini/assets/js/machina.js
 function runMachine() {
   const currentDialogueWrapper = document.getElementById('dialogue-content-wrapper');
   if (!currentDialogueWrapper) {
