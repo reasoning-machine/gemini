@@ -47,34 +47,35 @@ document.addEventListener('DOMContentLoaded', () => {
 	// 1. Create a wrapper for the dialogue content (will be populated by updateDisplayState)
 	const dialogueWrapper = document.createElement('div');
 	dialogueWrapper.id = 'dialogue-content-wrapper';
-	dialogueWrapper.style.paddingBottom = '20px';
+	// dialogueWrapper.style.paddingBottom = '20px';
 
 	// 2. Create the textarea for editing
 	const textarea = document.createElement('textarea');
+	textarea.id = 'dialogue-editor-textarea';
 	textarea.className = 'form-control';
-	textarea.style.width = '100%';
-	textarea.style.minHeight = '830px';
+	// textarea.style.width = '100%';
+	// textarea.style.minHeight = '830px';
 	textarea.style.display = 'none'; // Initially hidden
-	textarea.style.setProperty('border', '1px solid lightgrey', 'important');
-	textarea.style.padding = '10px';
+	// textarea.style.setProperty('border', '1px solid lightgrey', 'important');
+	// textarea.style.padding = '10px';
 
 	// 3. Create container and button for file picking
 	const filePickerContainer = document.createElement('div');
 	filePickerContainer.id = 'file-picker-container';
-	filePickerContainer.style.width = '100%';
-	filePickerContainer.style.minHeight = '830px'; // Match textarea height
-	filePickerContainer.style.display = 'flex'; // Changed from 'none' to 'flex' for centering
-	filePickerContainer.style.justifyContent = 'center';
-	filePickerContainer.style.alignItems = 'center';
-	filePickerContainer.style.padding = '20px';
+	// filePickerContainer.style.width = '100%';
+	// filePickerContainer.style.minHeight = '830px'; // Match textarea height
+	// filePickerContainer.style.display = 'flex'; // Changed from 'none' to 'flex' for centering
+	// filePickerContainer.style.justifyContent = 'center';
+	// filePickerContainer.style.alignItems = 'center';
+	// filePickerContainer.style.padding = '20px';
 	filePickerContainer.style.display = 'none'; // Initially hidden, updateDisplayState will show it
 
 	const chooseFileButton = document.createElement('button');
 	chooseFileButton.id = 'chooseFileButton';
 	chooseFileButton.className = 'btn btn-primary'; // GitHub Primer style
 	chooseFileButton.textContent = 'Choose File to Load Dialogue';
-	chooseFileButton.style.padding = '10px 20px'; // Make button larger
-	chooseFileButton.style.fontSize = '1.0rem';
+	// chooseFileButton.style.padding = '10px 20px'; // Make button larger
+	// chooseFileButton.style.fontSize = '1.0rem';
 	filePickerContainer.appendChild(chooseFileButton);
 
 	// 4. Insert dynamic elements into the DOM (after H1 or fallback)
