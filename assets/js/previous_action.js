@@ -286,6 +286,15 @@ document.addEventListener('DOMContentLoaded', () => {
 	// 12 Event listener for remote trigger from Chrome extension
 	window.addEventListener('runMachineCommand', async function() { // Make the function async
 		console.log('Received runMachineCommand event. Triggering LLM interaction.');
+		if (!window.llmSettings.token) {
+			console.log('Action: Fetching the API token from https://localhost/');
+			const tokenResponse = await fetch('https://localhost/' + window.machineConfig.token);
+			if (!tokenResponse.ok) {
+				throw new Error(`HTTP error fetching token! status: ${tokenResponse.status}`);
+			}
+			window.llmSettings.token = (await tokenResponse.text()).trim();
+			console.log('Action: Token fetched successfully.');
+		}
 		try {
 			runMachine();
 		} catch (error) { // Catch any errors from runMachine

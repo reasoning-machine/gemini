@@ -221,21 +221,6 @@ document.addEventListener('DOMContentLoaded', () => {
         window.llmSettings.token = tokenInputVal.trim();
         console.log('Token set manually via pop-up.');
         hideTokenPopup();
-        // Directly attempt to run the machine after setting the token
-        if (window.llmSettings.token && window.llmSettings.token.trim() !== '') {
-          console.log('Proceeding with LLM interaction after manual token entry.');
-          try {
-            await runMachine(); // Ensure runMachine is async or handles promises
-          } catch (error) {
-            console.error('LLM interaction failed (runMachine after manual token submission):', error.message);
-            alert(`LLM interaction failed: ${error.message}`);
-          }
-        } else {
-          // This case should ideally not be hit if the input was validated, but as a fallback:
-          console.error('Token still missing after attempting manual entry.');
-          alert('Token is still missing. Please provide it.');
-          showTokenPopup(); // Re-show pop-up
-        }
       } else {
         alert('Enter an API token.');
       }
@@ -243,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
   } else {
     console.warn('Token pop-up save button (tokenPopupSaveButton) not found.');
   }
-  
+  // Token popup cancel
   const tokenPopupCancelButton = document.getElementById('tokenPopupCancelButton');
   if (tokenPopupCancelButton) {
     tokenPopupCancelButton.addEventListener('click', () => {
@@ -257,11 +242,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (event.altKey && event.shiftKey) {
       event.preventDefault();
       console.log('Alt+Shift pressed. Attempting to trigger LLM interaction.');
-      
-      let tokenAvailable = window.llmSettings.token && window.llmSettings.token.trim() !== '';
-      
-      if (!tokenAvailable) {
-        console.log('Token not found or empty. Attempting to fetch from: https://localhost/' + window.machineConfig.token);
+      if (!window.llmSettings.token) {
+        console.log('Token not found. Attempting to fetch from: https://localhost/' + window.machineConfig.token);
         try {
           const tokenResponse = await fetch('https://localhost/' + window.machineConfig.token);
           if (!tokenResponse.ok) {
@@ -273,78 +255,41 @@ document.addEventListener('DOMContentLoaded', () => {
             throw new Error(errorDetails);
           }
           const fetchedToken = (await tokenResponse.text()).trim();
-          if (!fetchedToken) {
-            throw new Error("Fetched token is empty.");
-          }
           window.llmSettings.token = fetchedToken;
-          tokenAvailable = true; // Token is now available
           console.log('Token fetched successfully from server.');
         } catch (fetchError) {
           console.error('Token fetch failed:', fetchError.message);
           showTokenPopup(); // Show pop-up to ask for token
           return; // Stop further execution in this handler, wait for pop-up interaction
         }
-      }
-      
-      if (tokenAvailable) {
+      } else {
         console.log('Token available. Proceeding with LLM interaction.');
         try {
-          await runMachine(); // Ensure runMachine is async or handles promises
+          await runMachine(); // runMachine is async or handles promises
         } catch (error) {
           console.error('LLM interaction failed (runMachine):', error.message);
           alert(`LLM interaction failed: ${error.message}`);
         }
-      } else {
-        // This case should ideally be handled by the fetch error or if popup is already shown
-        console.log('Token still not available after fetch attempt. Showing pop-up.');
-        showTokenPopup();
       }
     }
   });
   
   // 12 Event listener for remote trigger from Chrome extension
-  window.addEventListener('runMachineCommand', async function() {
+  window.addEventListener('runMachineCommand', async function() { // Make the function async
     console.log('Received runMachineCommand event. Triggering LLM interaction.');
-    // Similar logic to Alt+Shift for token checking
-    let tokenAvailable = window.llmSettings.token && window.llmSettings.token.trim() !== '';
-    
-    if (!tokenAvailable) {
-      console.log('Token not found for runMachineCommand. Attempting to fetch...');
-      try {
-        const tokenResponse = await fetch('https://localhost/' + window.machineConfig.token);
-        if (!tokenResponse.ok) {
-          let errorDetails = `HTTP error fetching token! Status: ${tokenResponse.status}`;
-          try {
-            const errorBody = await tokenResponse.text();
-            if (errorBody) errorDetails += ` - Body: ${errorBody.substring(0, 200)}`;
-          } catch (e) { /* Ignore */ }
-          throw new Error(errorDetails);
-        }
-        const fetchedToken = (await tokenResponse.text()).trim();
-        if (!fetchedToken) {
-          throw new Error("Fetched token is empty for runMachineCommand.");
-        }
-        window.llmSettings.token = fetchedToken;
-        tokenAvailable = true;
-        console.log('Token fetched successfully for runMachineCommand.');
-      } catch (fetchError) {
-        console.error('Token fetch failed for runMachineCommand:', fetchError.message);
-        showTokenPopup();
-        return;
+    if (!window.llmSettings.token) {
+      console.log('Action: Fetching the API token from https://localhost/');
+      const tokenResponse = await fetch('https://localhost/' + window.machineConfig.token);
+      if (!tokenResponse.ok) {
+        throw new Error(`HTTP error fetching token! status: ${tokenResponse.status}`);
       }
+      window.llmSettings.token = (await tokenResponse.text()).trim();
+      console.log('Action: Token fetched successfully.');
     }
-    
-    if (tokenAvailable) {
-      console.log('Token available for runMachineCommand. Proceeding.');
-      try {
-        await runMachine(); // runMachine is async and handles promises
-      } catch (error) {
-        console.error('LLM interaction failed (runMachineCommand):', error.message);
-        alert(`LLM interaction failed: ${error.message}`);
-      }
-    } else {
-      console.log('Token still not available for runMachineCommand. Showing pop-up.');
-      showTokenPopup();
+    try {
+      runMachine();
+    } catch (error) { // Catch any errors from runMachine
+      console.error('LLM interaction failed (runMachineCommand):', error.message);
     }
   });
   
