@@ -67,7 +67,7 @@ self.onmessage = async function (event) {
 
 		// --- 4. Prepare the final API URL ---
 		const llm = llmSettings.model || machineConfig.llm;
-		const apiUrl = machineConfig.apiUrl + llm + ':generateContent?key=' + token
+		const apiUrl = machineConfig.apiUrl + llm + ':generateContent?key=' + llmSettings.token
 
 		// --- 4. Prepare the final API payload ---
 		const apiParameters = {
