@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('multilogue', platoTextForInit);
   }
   
-  // --- START: Token Pop-up Helper Functions ---
+  // 6. Functions for token popup
   function showTokenPopup() {
     const popup = document.getElementById('tokenPopupOverlay');
     const input = document.getElementById('tokenPopupInput');
@@ -99,16 +99,14 @@ document.addEventListener('DOMContentLoaded', () => {
       alert('Error: Token input dialog is missing. Cannot proceed without a token if fetch fails.');
     }
   }
-  
   function hideTokenPopup() {
     const popup = document.getElementById('tokenPopupOverlay');
     if (popup) {
       popup.style.display = 'none';
     }
   }
-  // --- END: Token Pop-up Helper Functions ---
   
-  // 6. Function to update display based on localStorage content
+  // 7. Function to update display based on localStorage content
   function updateDisplayState() {
     const currentPlatoText = localStorage.getItem('multilogue');
     if (currentPlatoText && currentPlatoText.trim() !== '') {
@@ -133,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   updateDisplayState();
   
-  // 7. Event listener for "Choose File" button
+  // 8. Event listener for "Choose File" button
   chooseFileButton.addEventListener('click', async () => {
     try {
       const [fileHandle] = await window.showOpenFilePicker({
@@ -158,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
   
-  // 8. Event listener to switch to edit mode
+  // 9. Event listener to switch to edit mode
   dialogueWrapper.addEventListener('click', () => {
     try {
       const plainText = localStorage.getItem('multilogue') || '';
@@ -173,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
   
-  // 9. Event listener for saving (Ctrl+Enter) in the textarea
+  // 10. Event listener for saving (Ctrl+Enter) in the textarea
   textarea.addEventListener('keydown', (event) => {
     if (event.ctrlKey && !event.shiftKey && event.key === 'Enter') {
       event.preventDefault();
@@ -183,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
   
-  // 10. Event listener for saving to file (Ctrl+Shift+Enter)
+  // 11. Event listener for saving to file (Ctrl+Shift+Enter)
   document.addEventListener('keydown', async (event) => {
     if (event.ctrlKey && event.shiftKey && event.key === 'Enter') {
       event.preventDefault();
@@ -214,7 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
   
-  // --- START: Setup for Token Pop-up Buttons ---
+  // Token popup save
   const tokenPopupSaveButton = document.getElementById('tokenPopupSaveButton');
   if (tokenPopupSaveButton) {
     tokenPopupSaveButton.addEventListener('click', async () => {
@@ -229,7 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
           try {
             await runMachine(); // Ensure runMachine is async or handles promises
           } catch (error) {
-            console.error('LLM interaction failed (runMachine after manual token):', error.message);
+            console.error('LLM interaction failed (runMachine after manual token submission):', error.message);
             alert(`LLM interaction failed: ${error.message}`);
           }
         } else {
@@ -253,7 +251,6 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log('Token entry cancelled by user.');
     });
   }
-  // --- END: Setup for Token Pop-up Buttons ---
   
   // 11. Event listener for LLM communications (Alt+Shift)
   document.addEventListener('keydown', async function (event) {
@@ -340,7 +337,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (tokenAvailable) {
       console.log('Token available for runMachineCommand. Proceeding.');
       try {
-        await runMachine(); // Ensure runMachine is async or handles promises
+        await runMachine(); // runMachine is async and handles promises
       } catch (error) {
         console.error('LLM interaction failed (runMachineCommand):', error.message);
         alert(`LLM interaction failed: ${error.message}`);
