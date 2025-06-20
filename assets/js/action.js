@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	// Iterate over query parameters found in the URL
 	for (const [key, value] of queryParams.entries()) {
 		// Basic type conversion for known numeric fields
-		if (['temperature', 'topP', 'topK', 'thinkingBudget'].includes(key)) {
+		if (['temperature', 'topP', 'topK'].includes(key)) {
 			const numValue = parseFloat(value);
 			llmSettings[key] = isNaN(numValue) ? value : numValue;
 		} else if (['maxOutputTokens', 'thinkingBudget'].includes(key)) {

@@ -65,6 +65,13 @@
   background-color: #0056b3;
   text-decoration: none;
 }
+.form-button-row {
+  text-align: center; /* This centers inline and inline-block children */
+  //margin-top: 5px; /* Add some space above the button */
+}
+.styled-link-button {
+  display: inline-block; // Ensure it's inline-block or block for text-align: center to work
+}
 
 #dialogue-content-wrapper {
   padding-bottom: 20px;
