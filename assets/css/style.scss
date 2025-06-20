@@ -82,7 +82,7 @@
   width: 100%;
   min-height: 830px;
   // The 'display' property is managed dynamically by action.js
-  border: 1px solid lightgrey !important; // Kept !important to match original behavior; review if it's truly needed if Primer's .form-control styles conflict.
+  border: 1px solid lightgrey !important;
   padding: 10px;
   box-sizing: border-box; // Added for better layout consistency
 }
@@ -103,6 +103,7 @@
   // These styles will augment or override Primer's default styles for this specific button.
   padding: 10px 20px;
   font-size: 1.0rem;
+  background: #ffffff;
 }
 
 .popup-overlay {
@@ -133,17 +134,6 @@
 .popup h3 {
   margin-top: 0;
   font-size: 1.25em;
-}
-
-.popup textarea {
-  width: 90%;
-  margin: 0 auto 15px auto;
-  display: block;
-  height: 100px;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 1px;
-  resize: vertical;
 }
 
 .popup input[type="text"] {
