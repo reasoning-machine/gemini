@@ -11,7 +11,6 @@ self.onmessage = async function (event) {
 	llmSettings = event.data.settings;
 	messages = event.data.messages;
 	console.log('Worker received messages:', messages);
-	// garbage
 	garbage = [
 		{'category': 'HARM_CATEGORY_HATE_SPEECH', 'threshold': 'BLOCK_NONE'},
 		{'category': 'HARM_CATEGORY_SEXUALLY_EXPLICIT', 'threshold': 'BLOCK_NONE'},
@@ -21,15 +20,7 @@ self.onmessage = async function (event) {
 	]
 
 	try {
-		// --- 1. Fetch the token ---
-		// console.log('Worker: Fetching the API token from https://localhost/');
-		// const tokenResponse = await fetch('https://localhost/' + machineConfig.token); // opeai.txt
-		// if (!tokenResponse.ok) {
-		// 	throw new Error(`HTTP error fetching token! status: ${tokenResponse.status}`);
-		// }
-		// const token = (await tokenResponse.text()).trim();
-		// console.log('Worker: Token fetched successfully.');
-
+		// --- 1. Fetch token was here ---
 		// --- 2. Fetch instruction ---
 		let instructionText; // Declare here to ensure it's in scope
 		try {
@@ -38,7 +29,10 @@ self.onmessage = async function (event) {
 			if (!instructionResponse.ok) {
 				console.log(`Worker: HTTP error fetching instruction! status: ${instructionResponse.status}. Using default instruction.`);
 				// Default instruction if fetching fails or file not found
-				instructionText = "You are a helpful assistant by the name 'Reasoning-Machine'.";
+				instructionText = 'You are an eloquent and concise assistant by the name "Reasoning-Machine". Your role in the multi-person / multi-entity conversation is to reason about the ideas discussed in the conversation.\n' +
+					'Do not introduce yourself, just think about what is being said and keep thinking it over and laying out your thoughts. Do not add any notes or explanations of your working at the end of your utterance.\n' +
+					'Your text should always be in prose, structured as naturally flowing paragraphs. Do *not* use any lists (numbered or bulleted) under any circumstances. Avoid any form of emphasis, such as bolding, italics, or underlining. Do not use blank lines to separate paragraphs or parts of your text. Focus on clear, straightforward communication using complete sentences and well-structured paragraphs where paragraph breaks are used logically to separate distinct ideas or points. You can separate paragraphs with a new line character followed by a tab character.\n' +
+					'Maintain a strictly neutral and objective tone. Avoid any language that could be interpreted as sycophantic, overly enthusiastic, or expressing personal opinions or feelings. Do not use exclamation points, excessive praise, or any form of emotional language. Your goal is to provide factual information in a direct and unembellished manner. Do not attempt to simulate emotions or personality.\n';
 			} else {
 				instructionText = (await instructionResponse.text()).trim();
 				console.log('Worker: Instruction fetched successfully.');
