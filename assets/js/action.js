@@ -239,7 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
           showTokenPopup(); // Re-show pop-up
         }
       } else {
-        alert('Please enter an API token.');
+        alert('Enter an API token.');
       }
     });
   } else {
