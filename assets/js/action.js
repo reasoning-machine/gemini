@@ -262,14 +262,13 @@ document.addEventListener('DOMContentLoaded', () => {
           showTokenPopup(); // Show pop-up to ask for token
           return; // Stop further execution in this handler, wait for pop-up interaction
         }
-      } else {
-        console.log('Token available. Proceeding with LLM interaction.');
-        try {
-          await runMachine(); // runMachine is async or handles promises
-        } catch (error) {
-          console.error('LLM interaction failed (runMachine):', error.message);
-          alert(`LLM interaction failed: ${error.message}`);
-        }
+      }
+      console.log('Token available. Proceeding with LLM interaction.');
+      try {
+        await runMachine(); // runMachine is async or handles promises
+      } catch (error) {
+        console.error('LLM interaction failed (runMachine):', error.message);
+        alert(`LLM interaction failed: ${error.message}`);
       }
     }
   });
@@ -308,7 +307,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
   
-  // Add/Update Escape key listener to also close the token pop-up
+  // 15. Escape key listener to close the token pop-up
   document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
       const tokenPopup = document.getElementById('tokenPopupOverlay');
