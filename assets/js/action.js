@@ -34,14 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
     console.error('H1 element not found. UI elements might be misplaced.');
   }
   
-  // Capture HTML from original static <p class="dialogue"> elements and then hide them.
-  const originalStaticDialogueElements = Array.from(contentContainer.querySelectorAll('p.dialogue'));
-  let initialHtmlFromStatic = '';
-  originalStaticDialogueElements.forEach(p => {
-    initialHtmlFromStatic += p.outerHTML;
-    p.style.display = 'none';
-  });
-  
   // 1. Create a wrapper for the dialogue content
   const dialogueWrapper = document.createElement('div');
   dialogueWrapper.id = 'dialogue-content-wrapper';
@@ -73,16 +65,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // 5. Initialize localStorage
   let platoTextForInit = localStorage.getItem('multilogue');
   if (platoTextForInit === null) {
-    if (initialHtmlFromStatic.trim() !== '') {
-      try {
-        platoTextForInit = platoHtmlToPlatoText(initialHtmlFromStatic);
-      } catch (e) {
-        console.error("Error converting initial static HTML to Plato text:", e);
-        platoTextForInit = '';
-      }
-    } else {
-      platoTextForInit = '';
-    }
+    platoTextForInit = ''; // Fallback to empty string
+    localStorage.setItem('multilogue', platoTextForInit);
     localStorage.setItem('multilogue', platoTextForInit);
   }
   
@@ -142,6 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       const file = await fileHandle.getFile();
       const fileContent = await file.text();
+      
       localStorage.setItem('multilogue', fileContent);
       textarea.value = fileContent;
       dialogueWrapper.style.display = 'none';
@@ -201,7 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const writable = await fileHandle.createWritable();
         await writable.write(textToSave);
         await writable.close();
-        localStorage.setItem('multilogue', textToSave); // Update localStorage only on successful save
+        // localStorage.setItem('multilogue', textToSave); // Update localStorage only on successful save
         updateDisplayState();
       } catch (err) {
         if (err.name !== 'AbortError') {
@@ -237,7 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   
-  // 11. Event listener for LLM communications (Alt+Shift)
+  // 12. Event listener for LLM communications (Alt+Shift)
   document.addEventListener('keydown', async function (event) {
     if (event.altKey && event.shiftKey) {
       event.preventDefault();
@@ -273,7 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
   
-  // 12 Event listener for remote trigger from Chrome extension
+  // 13 Event listener for remote trigger from Chrome extension
   window.addEventListener('runMachineCommand', async function() { // Make the function async
     console.log('Received runMachineCommand event. Triggering LLM interaction.');
     if (!window.llmSettings.token) {
@@ -292,13 +277,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
   
-  // 13. Update multilogue display from the localStorage
+  // 14. Update multilogue display from the localStorage
   window.addEventListener('localStorageChanged', function() {
     console.log('Received localStorageChanged event. Triggering multilogue update.');
     updateDisplayState();
   });
   
-  // 14. Update display when tab becomes visible again
+  // 15. Update display when tab becomes visible again
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
       if (typeof updateDisplayState === 'function') {
@@ -307,7 +292,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
   
-  // 15. Escape key listener to close the token pop-up
+  // 16. Escape key listener to close the token pop-up
   document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
       const tokenPopup = document.getElementById('tokenPopupOverlay');
