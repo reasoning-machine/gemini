@@ -35,7 +35,6 @@ function _extractSpeakerAndUtterance(paragraphElement) {
  *                            Each object has 'role' ('user' or 'model') and 'parts' (an array of text parts).
  *                            Returns an empty array if platoHtml is empty or whitespace.
  * @throws {Error} If platoHtml is null, undefined, or not a string.
- * @throws {Error} If window.machineConfig or window.machineConfig.name is not available.
  */
 export function platoHtmlToMpuj(platoHtml, machineName) {
 	if (platoHtml === null || typeof platoHtml !== 'string') {
@@ -45,10 +44,6 @@ export function platoHtmlToMpuj(platoHtml, machineName) {
 		return []; // Return empty array for empty or whitespace-only HTML
 	}
 
-	if (!window.machineConfig || typeof window.machineConfig.name !== 'string' || !window.machineConfig.name.trim()) {
-		console.error('platoHtmlToMpuj: machineConfig.name is not available or empty. Please ensure window.machineConfig.name is correctly set.');
-		throw new Error('machineConfig.name is not configured. Cannot determine model messages.');
-	}
 	const modelNameUpper = machineName.toUpperCase();
 
 	const mpujMessages = [];
@@ -112,7 +107,6 @@ export function platoHtmlToMpuj(platoHtml, machineName) {
  *                            Each object has 'role' ('user' or 'model') and 'parts' (an array of text parts).
  *                            Returns an empty array if platoText is empty or whitespace.
  * @throws {Error} If platoText is null, undefined, or not a string.
- * @throws {Error} If window.machineConfig or window.machineConfig.name is not available.
  */
 export function platoTextToMpuj(platoText, machineName) {
 	if (platoText === null || typeof platoText !== 'string') {
@@ -122,10 +116,6 @@ export function platoTextToMpuj(platoText, machineName) {
 		return []; // Return empty array for empty or whitespace-only text
 	}
 
-	if (!window.machineConfig || typeof window.machineConfig.name !== 'string' || !window.machineConfig.name.trim()) {
-		console.error('platoTextToMpuj: machineConfig.name is not available or empty. Please ensure window.machineConfig.name is correctly set.');
-		throw new Error('machineConfig.name is not configured. Cannot determine model messages.');
-	}
 	const modelNameUpper = machineName.toUpperCase();
 
 	const mpujMessages = [];
