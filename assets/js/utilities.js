@@ -1,3 +1,28 @@
+function _extractSpeakerAndUtterance(paragraphElement) {
+	const speakerSpan = paragraphElement.querySelector('span.speaker');
+	if (!speakerSpan) return null;
+	
+	const speaker = speakerSpan.textContent.trim();
+	
+	const rawHtmlOfP = paragraphElement.innerHTML;
+	const speakerSpanHtml = speakerSpan.outerHTML;
+	const speakerSpanEndIndex = rawHtmlOfP.indexOf(speakerSpanHtml) + speakerSpanHtml.length;
+	let utteranceHtml = rawHtmlOfP.substring(speakerSpanEndIndex);
+	
+	if (utteranceHtml.startsWith(' ')) {
+		utteranceHtml = utteranceHtml.substring(1);
+	}
+	
+	let processedUtterance = utteranceHtml.replace(/<br\s*\/?>\s*&emsp;/gi, '\n\t');
+	processedUtterance = processedUtterance.replace(/<br\s*\/?>/gi, '\n');
+	
+	const decoder = document.createElement('div');
+	decoder.innerHTML = processedUtterance;
+	const finalUtterance = decoder.textContent.trim();
+	
+	return { speaker, utterance: finalUtterance };
+}
+
 /**
  * Transforms platoHtml format to MPUJ (Multi-Part User JSON) array
  * for Gemini API.
@@ -12,7 +37,7 @@
  * @throws {Error} If platoHtml is null, undefined, or not a string.
  * @throws {Error} If window.machineConfig or window.machineConfig.name is not available.
  */
-function platoHtmlToMpuj(platoHtml) {
+export function platoHtmlToMpuj(platoHtml, machineName) {
 	if (platoHtml === null || typeof platoHtml !== 'string') {
 		throw new Error('Invalid input: platoHtml must be a string.');
 	}
@@ -24,7 +49,7 @@ function platoHtmlToMpuj(platoHtml) {
 		console.error('platoHtmlToMpuj: machineConfig.name is not available or empty. Please ensure window.machineConfig.name is correctly set.');
 		throw new Error('machineConfig.name is not configured. Cannot determine model messages.');
 	}
-	const modelNameUpper = window.machineConfig.name.toUpperCase();
+	const modelNameUpper = machineName.toUpperCase();
 
 	const mpujMessages = [];
 	let currentUserParts = []; // To accumulate parts for the current user message
@@ -89,7 +114,7 @@ function platoHtmlToMpuj(platoHtml) {
  * @throws {Error} If platoText is null, undefined, or not a string.
  * @throws {Error} If window.machineConfig or window.machineConfig.name is not available.
  */
-function platoTextToMpuj(platoText) {
+export function platoTextToMpuj(platoText, machineName) {
 	if (platoText === null || typeof platoText !== 'string') {
 		throw new Error('Invalid input: platoText must be a string.');
 	}
@@ -101,7 +126,7 @@ function platoTextToMpuj(platoText) {
 		console.error('platoTextToMpuj: machineConfig.name is not available or empty. Please ensure window.machineConfig.name is correctly set.');
 		throw new Error('machineConfig.name is not configured. Cannot determine model messages.');
 	}
-	const modelNameUpper = window.machineConfig.name.toUpperCase();
+	const modelNameUpper = machineName.toUpperCase();
 
 	const mpujMessages = [];
 	let currentUserParts = []; // To accumulate parts for the current user message
@@ -162,7 +187,7 @@ function platoTextToMpuj(platoText) {
  *                                      Each object should have 'name' and 'content' properties.
  * @returns {string} - The platoText formatted string.
  */
-function mpjToPlatoText(mpjMessage) {
+export function mpjToPlatoText(mpjMessage) {
 	if (!Array.isArray(cmjMessages)) {
 		console.error('Invalid input: cmjMessages must be an array.');
 		// Consider throwing an error for more robust handling:
@@ -196,7 +221,7 @@ function mpjToPlatoText(mpjMessage) {
  * @param {string} llmResponse The raw text response from an LLM.
  * @returns {string} The cleaned and formatted plain text.
  */
-function llmSoupToText(llmResponse) {
+export function llmSoupToText(llmResponse) {
 	if (typeof llmResponse !== 'string') {
 		// Handle non-string inputs gracefully, e.g., by returning an empty string
 		// or throwing an error, depending on desired behavior.
@@ -290,132 +315,80 @@ function llmSoupToText(llmResponse) {
 }
 
 /**
- * Transforms platoHtml format to CMJ (Chat Messages JSON) format.
+ * Transforms platoHtml format to platoText format using the helper.
  * @param {string} platoHtml - The platoHtml formatted string.
- * @returns {Array<Object>} - Array of message objects. (Note: JSDoc says JSON stringified, actual code returns Array)
+ * @returns {string} - The platoText formatted string.
  */
-function platoHtmlToCmj(platoHtml) {
+export function platoHtmlToPlatoText(platoHtml) {
+	if (typeof platoHtml !== 'string' || !platoHtml.trim()) {
+		return '';
+	}
+	
+	let result = ''; // Correctly initialized to an empty string
+	const parser = new DOMParser();
+	const doc = parser.parseFromString(platoHtml, 'text/html');
+	const paragraphs = doc.querySelectorAll('p.dialogue');
+	
+	paragraphs.forEach(p => {
+		const extracted = _extractSpeakerAndUtterance(p);
+		if (extracted) {
+			const {
+				speaker,
+				utterance
+			} = extracted;
+			if (speaker || utterance) {
+				result += `${speaker}: ${utterance}\n\n`;
+			}
+		}
+	});
+	
+	return result;
+}
+
+/**
+ * Transforms platoHtml format to CMJ format using the helper.
+ * @param {string} platoHtml - The platoHtml formatted string.
+ * @param {string} machineName - The name of the assistant/machine.
+ * @returns {Array<Object>}
+ */
+export function platoHtmlToCmj(platoHtml, machineName) {
 	if (!platoHtml || typeof platoHtml !== 'string') {
 		throw new Error('Invalid input: platoHtml must be a non-empty string');
 	}
-
+	if (!machineName) {
+		throw new Error('machineName is required for role assignment.');
+	}
+	
 	const messages = [];
 	const parser = new DOMParser();
 	const doc = parser.parseFromString(platoHtml, 'text/html');
 	const paragraphs = doc.querySelectorAll('p.dialogue');
-
+	const assistantNameUpper = machineName.toUpperCase();
+	
 	paragraphs.forEach(p => {
-		const speakerSpan = p.querySelector('span.speaker');
-		if (!speakerSpan) return; // Skip malformed paragraphs
-
-		const speaker = speakerSpan.textContent.trim();
-
-		// --- New utterance extraction logic ---
-		const rawHtmlOfP = p.innerHTML;
-		const speakerSpanHtml = speakerSpan.outerHTML;
-		const speakerSpanEndIndex = rawHtmlOfP.indexOf(speakerSpanHtml) + speakerSpanHtml.length;
-
-		let utteranceHtml = rawHtmlOfP.substring(speakerSpanEndIndex);
-
-		// The template in platoTextToPlatoHtml adds a space: <span ...></span> ${utterance}
-		// Remove this specific structural space if it exists.
-		if (utteranceHtml.startsWith(' ')) {
-			utteranceHtml = utteranceHtml.substring(1);
-		}
-
-		// 1. Convert <br />&emsp; (and variants with optional space) to \n\t
-		let processedUtterance = utteranceHtml.replace(/<br\s*\/?>\s*&emsp;/gi, '\n\t');
-
-		// 2. Convert remaining <br /> (and variants) to \n
-		processedUtterance = processedUtterance.replace(/<br\s*\/?>/gi, '\n');
-
-		// 3. Strip any other HTML tags and decode entities (e.g., &lt; to <)
-		// Using a temporary element for this is a standard and robust method.
-		const decoder = document.createElement('div');
-		decoder.innerHTML = processedUtterance;
-		const finalUtterance = decoder.textContent.trim(); // Trim after all processing
-		// --- End of new utterance extraction logic ---
-
-		let role = 'user';
-		// Safely access machineConfig.name and compare in uppercase
-		let assistantNameUpper = '';
-		if (typeof machineConfig !== 'undefined' && machineConfig && typeof machineConfig.name === 'string' && machineConfig.name.trim() !== '') {
-			assistantNameUpper = machineConfig.name.toUpperCase();
-		} else {
-			// console.warn("machineConfig.name not available for role assignment in platoHtmlToCmj.");
-		}
-
-		if (assistantNameUpper && speaker.toUpperCase() === assistantNameUpper) {
-			role = 'assistant';
-		} else if (speaker.toUpperCase() === 'INSTRUCTIONS') {
-			role = 'system';
-		}
-
-		messages.push({
-			role: role,
-			name: speaker,
-			content: finalUtterance
-		});
-	});
-
-	return messages; // JSDoc indicates string, but function returns Array.
-}
-
-/**
- * Transforms platoHtml format to platoText format.
- * @param {string} platoHtml - The platoHtml formatted string.
- * @returns {string} - The platoText formatted string.
- */
-function platoHtmlToPlatoText(platoHtml) {
-	if (typeof platoHtml !== 'string') {
-		throw new Error('Invalid input: platoHtml must be a string');
-	}
-	if (!platoHtml.trim()) {
-		return '';
-	}
-
-	let result = '';
-	const parser = new DOMParser();
-	const doc = parser.parseFromString(platoHtml, 'text/html');
-	const paragraphs = doc.querySelectorAll('p.dialogue');
-
-	paragraphs.forEach(p => {
-		const speakerSpan = p.querySelector('span.speaker');
-		if (!speakerSpan) return;
-
-		const speaker = speakerSpan.textContent.trim();
-
-		// --- New utterance extraction logic ---
-		const rawHtmlOfP = p.innerHTML;
-		const speakerSpanHtml = speakerSpan.outerHTML;
-		const speakerSpanEndIndex = rawHtmlOfP.indexOf(speakerSpanHtml) + speakerSpanHtml.length;
-
-		let utteranceHtml = rawHtmlOfP.substring(speakerSpanEndIndex);
-
-		// The template in platoTextToPlatoHtml adds a space: <span ...></span> ${utterance}
-		// Remove this specific structural space if it exists.
-		if (utteranceHtml.startsWith(' ')) {
-			utteranceHtml = utteranceHtml.substring(1);
-		}
-
-		// 1. Convert <br />&emsp; (and variants with optional space) to \n\t
-		let processedUtterance = utteranceHtml.replace(/<br\s*\/?>\s*&emsp;/gi, '\n\t');
-
-		// 2. Convert remaining <br /> (and variants) to \n
-		processedUtterance = processedUtterance.replace(/<br\s*\/?>/gi, '\n');
-
-		// 3. Strip any other HTML tags and decode entities (e.g., &lt; to <)
-		const decoder = document.createElement('div');
-		decoder.innerHTML = processedUtterance;
-		const finalUtterance = decoder.textContent.trim(); // Trim after all processing
-		// --- End of new utterance extraction logic ---
-
-		if (speaker || finalUtterance) { // Ensure there's something to add
-			result += `${speaker}: ${finalUtterance}\n\n`;
+		const extracted = _extractSpeakerAndUtterance(p);
+		if (extracted) {
+			const {
+				speaker,
+				utterance
+			} = extracted;
+			
+			let role = 'user';
+			if (speaker.toUpperCase() === assistantNameUpper) {
+				role = 'assistant';
+			} else if (speaker.toUpperCase() === 'INSTRUCTIONS') {
+				role = 'system';
+			}
+			
+			messages.push({
+				role: role,
+				name: speaker,
+				content: utterance
+			});
 		}
 	});
-
-	return result;
+	
+	return messages;
 }
 
 /**
@@ -423,7 +396,7 @@ function platoHtmlToPlatoText(platoHtml) {
  * @param {string} platoText - The platoText formatted string.
  * @returns {string} - The platoHtml formatted string.
  */
-function platoTextToPlatoHtml(platoText) {
+export function platoTextToPlatoHtml(platoText) {
 	if (typeof platoText !== 'string') {
 		throw new Error('Invalid input: platoText must be a string');
 	}
@@ -473,75 +446,12 @@ function platoTextToPlatoHtml(platoText) {
 }
 
 /**
- * Transforms platoText format to CMJ (Chat Messages JSON) format.
- * @param {string} platoText - The platoText formatted string.
- * @returns {Array<Object>} - Array of message objects. (Note: JSDoc in context says JSON stringified, but code returns Array)
- */
-function platoTextToCmj(platoText) {
-	if (typeof platoText !== 'string') {
-		throw new Error('Invalid input: platoText must be a string');
-	}
-	const trimmedPlatoText = platoText.trim();
-	if (!trimmedPlatoText) {
-		return []; // Return empty array for empty or whitespace-only input
-	}
-
-	const messages = [];
-	// Split by \n\n only if it's followed by a speaker pattern.
-	const messageBlocks = trimmedPlatoText.split(/\n\n(?=[A-Za-z0-9_-]+:\s*)/g);
-
-	// Determine assistant name for role assignment
-	// Prioritize machineConfig.name if available, otherwise use the literal from original function.
-	let effectiveAssistantNameUpper;
-	if (typeof machineConfig !== 'undefined' && machineConfig && typeof machineConfig.name === 'string' && machineConfig.name.trim() !== '') {
-		effectiveAssistantNameUpper = machineConfig.name.toUpperCase();
-	} else {
-		effectiveAssistantNameUpper = 'THINGKING-MACHINE'; // Fallback to original literal for this function
-	}
-
-	messageBlocks.forEach(block => {
-		const currentBlock = block.trim();
-		if (!currentBlock) return;
-
-		const speakerMatch = currentBlock.match(/^([A-Za-z0-9_-]+):\s*/);
-		if (!speakerMatch) {
-			console.warn('platoTextToCmj: Skipping block that does not start with a speaker pattern:', currentBlock);
-			return;
-		}
-
-		const speaker = speakerMatch[1]; // Speaker name as it appears
-		const rawUtterance = currentBlock.substring(speakerMatch[0].length);
-
-		// Replace "orphaned" double (or more) newlines within the utterance with '\n\t', then trim.
-		// For CMJ, \n and \t remain literal characters in the content string.
-		const processedUtterance = rawUtterance.replace(/\n{2,}/g, '\n\t').trim();
-
-		let role = 'user';
-		const speakerUpper = speaker.toUpperCase();
-
-		if (speakerUpper === effectiveAssistantNameUpper) {
-			role = 'assistant';
-		} else if (speakerUpper === 'INSTRUCTIONS') {
-			role = 'system';
-		}
-
-		messages.push({
-			role: role,
-			name: speaker, // Keep original speaker name casing
-			content: processedUtterance
-		});
-	});
-
-	return messages; // Returns an array of objects
-}
-
-/**
  * Transforms an array of CMJ message objects to platoText format.
  * @param {Array<Object>} cmjMessages - An array of CMJ message objects.
  *                                      Each object should have 'name' and 'content' properties.
  * @returns {string} - The platoText formatted string.
  */
-function CmjToPlatoText(cmjMessages) {
+export function CmjToPlatoText(cmjMessages) {
 	if (!Array.isArray(cmjMessages)) {
 		console.error('Invalid input: cmjMessages must be an array.');
 		// Consider throwing an error for more robust handling:

@@ -1,11 +1,2 @@
-<title>Reasoning</title>
-<script>
-        window.machineConfig = {
-            name: 'Reasoning-Machine',
-            instruction: 'reasoning.txt',
-            work: "{{ '/assets/js/gemapi.js' | relative_url }}",
-            token: 'gemini.txt',
-            apiUrl: 'https://generativelanguage.googleapis.com/v1beta/models/',
-            llm: 'gemini-2.5-flash-preview-05-20'
-        };
-</script>
+<title>{{ site.machine.verb }}</title>
+<script type="module" src="{{ '/assets/js/action.mjs' | relative_url }}"></script>

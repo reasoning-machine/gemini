@@ -25,24 +25,18 @@ self.onmessage = async function (event) {
 		let instructionText; // Declare here to ensure it's in scope
 		try {
 			console.log('Worker: Fetching the Machine instruction from https://localhost');
-			const instructionResponse = await fetch('https://localhost/' + machineConfig.instruction);
+			const instructionResponse = await fetch('https://localhost/' + machineConfig.instructions_file);
 			if (!instructionResponse.ok) {
 				console.log(`Worker: HTTP error fetching instruction! status: ${instructionResponse.status}. Using default instruction.`);
 				// Default instruction if fetching fails or file not found
-				instructionText = 'You are an eloquent and concise assistant by the name "Reasoning-Machine". Your role in the multi-person / multi-entity conversation is to reason about the ideas discussed in the conversation.\n' +
-					'Do not introduce yourself, just think about what is being said and keep thinking it over and laying out your thoughts. Do not add any notes or explanations of your working at the end of your utterance.\n' +
-					'Your text should always be in prose, structured as naturally flowing paragraphs. Do *not* use any lists (numbered or bulleted) under any circumstances. Avoid any form of emphasis, such as bolding, italics, or underlining. Do not use blank lines to separate paragraphs or parts of your text. Focus on clear, straightforward communication using complete sentences and well-structured paragraphs where paragraph breaks are used logically to separate distinct ideas or points. You can separate paragraphs with a new line character followed by a tab character.\n' +
-					'Maintain a strictly neutral and objective tone. Avoid any language that could be interpreted as sycophantic, overly enthusiastic, or expressing personal opinions or feelings. Do not use exclamation points, excessive praise, or any form of emotional language. Your goal is to provide factual information in a direct and unembellished manner. Do not attempt to simulate emotions or personality.\n';
+				instructionText = 'You are an eloquent and concise assistant by the name "Reasoning-Machine". \n';
 			} else {
 				instructionText = (await instructionResponse.text()).trim();
 				console.log('Worker: Instruction fetched successfully.');
 			}
 		} catch (fetchError) {
 			console.error('Worker: Error during instruction file fetch:', fetchError.message, '. Using default instruction.');
-			instructionText = 'You are an eloquent and concise assistant by the name "Reasoning-Machine". Your role in the multi-person / multi-entity conversation is to reason about the ideas discussed in the conversation.\n' +
-				'Do not introduce yourself, just think about what is being said and keep thinking it over and laying out your thoughts. Do not add any notes or explanations of your working at the end of your utterance.\n' +
-				'Your text should always be in prose, structured as naturally flowing paragraphs. Do *not* use any lists (numbered or bulleted) under any circumstances. Avoid any form of emphasis, such as bolding, italics, or underlining. Do not use blank lines to separate paragraphs or parts of your text. Focus on clear, straightforward communication using complete sentences and well-structured paragraphs where paragraph breaks are used logically to separate distinct ideas or points. You can separate paragraphs with a new line character followed by a tab character.\n' +
-				'Maintain a strictly neutral and objective tone. Avoid any language that could be interpreted as sycophantic, overly enthusiastic, or expressing personal opinions or feelings. Do not use exclamation points, excessive praise, or any form of emotional language. Your goal is to provide factual information in a direct and unembellished manner. Do not attempt to simulate emotions or personality.\n';
+			instructionText = 'You are an eloquent and concise assistant by the name "Reasoning-Machine".\n';
 		}
 
 		// --- 3. Prepare messages for the API call ---

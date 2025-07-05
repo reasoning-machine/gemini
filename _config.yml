@@ -6,7 +6,35 @@ relative_links:
 include:
   - README.md
   - LICENSE.md
+url: https://reasoning-machine.github.io
 baseurl: /gemini
 
 title: Reasoning Machine
 description: This is a machine that reasons.
+
+machine:
+  name: Reasoning-Machine
+  verb: Reasoning
+  instructions_file: reasoning.txt
+  token: gemini.txt
+  apiUrl: https://generativelanguage.googleapis.com/v1beta/models/
+
+app:
+  worker_name: gemapi.js
+
+lm:
+  model: gemini-2.5-flash-preview-05-20
+  maxOutputTokens: 10240
+  temperature: 1.0
+  topP: 0.9
+  topK: 50
+  thinkingBudget: 24576
+  includeThoughts: true
+
+
+github_settings:
+  owner: thingking-machine
+  repo: thingking_machine
+  file_name: machina.yaml
+  branch: main
+  token_file: github.txt
