@@ -23,12 +23,12 @@ app:
   worker_name: gemapi.js
 
 lm:
-  model: gemini-2.5-flash-preview-05-20
-  maxOutputTokens: 10240
+  model: gemini-2.5-pro
+  maxOutputTokens: 65536
   temperature: 1.0
   topP: 0.9
   topK: 50
-  thinkingBudget: 24576
+  thinkingBudget: 32768
   includeThoughts: true
 
 
