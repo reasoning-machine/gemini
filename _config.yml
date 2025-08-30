@@ -15,7 +15,7 @@ description: This is a machine that reasons.
 machine:
   name: Reasoning-Machine
   verb: Reasoning
-  instructions_file: reasoning.txt
+  instructions_file: reasoning.md
   token: gemini.txt
   apiUrl: https://generativelanguage.googleapis.com/v1beta/models/
 
