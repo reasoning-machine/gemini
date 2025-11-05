@@ -17,6 +17,7 @@ machine:
   verb: Reasoning
   instructions_file: reasoning.md
   token: gemini
+  server: https://localhost:443
   apiUrl: https://generativelanguage.googleapis.com/v1beta/models/
 
 app:
