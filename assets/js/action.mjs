@@ -301,7 +301,7 @@ class MachineApp {
     if (this.settings.llm.token) return true;
     
     try {
-      const tokenResponse = await fetch(`this.settings.machine.server + '/token/' + ${this.settings.machine.token}`);
+      const tokenResponse = await fetch(this.settings.machine.server + '/token/' + this.settings.machine.token, {mode: "cors"});
       if (!tokenResponse.ok) {
         throw new Error(`Server responded with status: ${tokenResponse.status}`);
       }
