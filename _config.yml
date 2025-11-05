@@ -16,7 +16,7 @@ machine:
   name: Reasoning-Machine
   verb: Reasoning
   instructions_file: reasoning.md
-  token: gemini.txt
+  token: gemini
   apiUrl: https://generativelanguage.googleapis.com/v1beta/models/
 
 app:
